@@ -7,26 +7,39 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    RecyclerView rv;
+    private RecyclerView rv;
+    private ImgList imgList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        init();
+    }
 
-        ImgList imgList = new ImgList();
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-        //비동기 처리하기
-        imgList.getImgList();
+       new Thread(new Runnable() {
+            @Override
+            public void run() {
+                imgList.getImgList();
+            }
+        }).run();
+
+    }
+
+    private void init(){
+        imgList = new ImgList();
+
 
         //recycler view
         rv = findViewById(R.id.recylcer_view);
         rv.addItemDecoration(new DividerItemDecoration(getBaseContext(), 1));
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-
         rv.setAdapter(new RvAdapter(imgList.getData(), this));
     }
 }

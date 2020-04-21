@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
         imgList = new ArrayList<>();
 
-        textView = findViewById(R.id.noti);
+        textView = findViewById(R.id.textView);
 
         mHandler = new Handler();
         //recycler view

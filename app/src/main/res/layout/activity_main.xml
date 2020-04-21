@@ -8,6 +8,11 @@
     tools:context=".MainActivity">
 
 
+    <WebView
+        android:id="@+id/web"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recylcer_view"
         android:layout_width="match_parent"

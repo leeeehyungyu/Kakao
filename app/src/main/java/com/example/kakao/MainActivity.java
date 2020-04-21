@@ -1,5 +1,6 @@
 package com.example.kakao;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,27 +16,32 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private final  String TAG = MainActivity.class.getSimpleName();
+
     private RecyclerView rv;
     private RvAdapter adapter;
     private ArrayList<String>imgList;
 
     private TextView textView;
     private Handler mHandler;
+    private  LinearLayoutManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         if(BuildConfig.DEBUG) Log.e(TAG,"onStart");
-        HttpThread ht = new HttpThread(imgList,adapter,mHandler,textView);
-        ht.start();
-
+        if(imgList.size()==0){
+            //새로고침을 넣어야하나
+            HttpThread ht = new HttpThread(imgList,adapter,mHandler,textView);
+            ht.start();
+        }
     }
 
     private void init(){
@@ -46,13 +52,12 @@ public class MainActivity extends AppCompatActivity {
 
         mHandler = new Handler();
         //recycler view
-        rv = findViewById(R.id.recylcer_view);
+        rv = findViewById(R.id.recycler_view);
         rv.addItemDecoration(new DividerItemDecoration(getBaseContext(), 1));
-        rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        rv.setLayoutManager( new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         adapter = new RvAdapter(imgList,this);
         rv.setAdapter(adapter);
     }
-
 
 
 }

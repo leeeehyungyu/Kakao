@@ -14,7 +14,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class HttpThread extends Thread {
-    final private String TAG = HttpThread.class.getSimpleName();
+
+    final private static String TAG = HttpThread.class.getSimpleName();
     final private static String URL = "https://www.gettyimagesgallery.com/collection/sasha/";
     final private static String FIND = "data-src=\"";
     final private static String NO_IMG = "표시할 이미지가 없습니다.";
@@ -42,8 +43,11 @@ public class HttpThread extends Thread {
         }
 
         int imgListSize = imgList.size();
+
+        if(BuildConfig.DEBUG) Log.e(TAG,"최종 imgList size :"+((Integer)imgListSize).toString());
         //로드된 이미지가 없으면
         if(imgListSize==0) postNoImgList();
+        else postImgList();
     }
 
 
@@ -76,20 +80,16 @@ public class HttpThread extends Thread {
                 }
             }
         }
-
     }
 
     private void postImgList(){
         //main thread에 요청
         if(BuildConfig.DEBUG) Log.e(TAG,"postImgList");
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                //adapter 데이터 변경요청
-                textView.setVisibility(View.GONE);
-                adapter.notifyDataSetChanged();
-            }
+        handler.post(() -> {
+            //adapter 데이터 변경요청
+            textView.setVisibility(View.GONE);
+            adapter.notifyDataSetChanged();
         });
     }
 
@@ -97,12 +97,7 @@ public class HttpThread extends Thread {
         //이미지가 없는경우
         if(BuildConfig.DEBUG) Log.e(TAG,"postNoImgList");
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                textView.setText(NO_IMG);
-            }
-        });
+        handler.post(() -> textView.setText(NO_IMG));
     }
 }
 

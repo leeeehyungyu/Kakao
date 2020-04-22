@@ -7,13 +7,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import java.util.ArrayList;
 
 public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
     private ArrayList<String> data;
     private Context context;
 
-    RvAdapter(ArrayList<String> data, Context context) { // 생성자
+    RvAdapter(ArrayList<String> data, Context context) {
         this.data = data;
         this.context = context;
     }
@@ -34,7 +36,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
     public void onBindViewHolder(RvAdapter.ViewHolder holder, int position) {
         //Glide를 쓰냐 아니면 직접 만드냐?
         // glide를 썻을때 캐시를 구현할까?
-        Glide.with(context).load(data.get(position)).override(1024).into(holder.item_view);
+        Glide.with(context)
+                .load(data.get(position))
+                .override(512)
+                .skipMemoryCache(false)//memory cache 사용
+                .diskCacheStrategy(DiskCacheStrategy.ALL)//disk cache 사용하지 않음;
+                .error(R.drawable.no_img)
+                .into(holder.item_view);
+
     }
 
     // ViewHolder 클래스 정의를 통해 Adapter에서 사용할 뷰들을 연결

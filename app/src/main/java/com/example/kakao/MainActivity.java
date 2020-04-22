@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
     private Handler mHandler;
-    private  LinearLayoutManager manager;
+    private HttpThread ht;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +37,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if(BuildConfig.DEBUG) Log.e(TAG,"onStart");
-        if(imgList.size()==0){
+        if(imgList.size()==0 && ht==null){
             //새로고침을 넣어야하나
-            HttpThread ht = new HttpThread(imgList,adapter,mHandler,textView);
+            ht = new HttpThread(imgList,adapter,mHandler,textView);
+            ht.setDaemon(true);
             ht.start();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        if(ht!=null) ht.
     }
 
     private void init(){

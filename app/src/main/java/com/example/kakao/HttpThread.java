@@ -25,6 +25,8 @@ public class HttpThread extends Thread {
     private Handler handler;
     private TextView textView;
 
+    private int prevSize, loadNum = 30;
+
     public HttpThread(ArrayList<String> imgList, RvAdapter adapter, Handler handler, TextView textView) {
         this.imgList = imgList;
         this.adapter = adapter;
@@ -32,9 +34,12 @@ public class HttpThread extends Thread {
         this.textView = textView;
     }
 
+    //단위 끊어서 보내기
     @Override
     public void run() {
         if(BuildConfig.DEBUG) Log.e(TAG,"run");
+
+        prevSize = imgList.size();
 
         try {
             getImgList();
@@ -42,12 +47,8 @@ public class HttpThread extends Thread {
             e.printStackTrace();
         }
 
-        int imgListSize = imgList.size();
-
-        if(BuildConfig.DEBUG) Log.e(TAG,"최종 imgList size :"+((Integer)imgListSize).toString());
-        //로드된 이미지가 없으면
-        if(imgListSize==0) postNoImgList();
-        else postImgList();
+        if(BuildConfig.DEBUG) Log.e(TAG,"최종 imgList size :"+imgList.size());
+        if(imgList.size()==0) postNoImgList();   //로드된 이미지가 없으면
     }
 
 
@@ -74,23 +75,32 @@ public class HttpThread extends Thread {
                     start += FIND.length();
                     imgList.add(result.substring(start, result.indexOf("\"", start + 1)));
 
-                    if (isPosted || imgList.size() < 6) continue;
-                    isPosted =true;
-                    postImgList();
-                }
+                    //이미지 url 5개 로드시 mainthread에 넘겨줌
+                    if (!isPosted && imgList.size() > 4){
+                        isPosted =true;
+                        postImgList();
+                    }
+                    if(prevSize +loadNum <= imgList.size()) postImgList();
+                }//while
+                if(prevSize < imgList.size()) postImgList(); //남은 데이터가 있다면 호출
             }
         }
     }
 
     private void postImgList(){
         //main thread에 요청
-        if(BuildConfig.DEBUG) Log.e(TAG,"postImgList");
+        int cnt = imgList.size()-prevSize;
+
+        if(BuildConfig.DEBUG) Log.e(TAG,"postImgList, adapter 변경 위치:"+prevSize+", 변경할 개수:"+cnt);
 
         handler.post(() -> {
-            //adapter 데이터 변경요청
             textView.setVisibility(View.GONE);
-            adapter.notifyDataSetChanged();
+
+            //adapter 데이터 변경요청
+            adapter.notifyItemRangeInserted(prevSize, cnt);
         });
+
+        prevSize = imgList.size();
     }
 
     private void postNoImgList(){

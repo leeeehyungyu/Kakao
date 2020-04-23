@@ -1,4 +1,4 @@
-package com.example.kakao;
+package com.example.kakao.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,45 +8,66 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.kakao.R;
 
 import java.util.ArrayList;
 
-public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
+public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> implements AdapterContract.Model,AdapterContract.View {
+
     private ArrayList<String> data;
     private Context context;
+    private int prevSize;
 
-    RvAdapter(ArrayList<String> data, Context context) {
-        this.data = data;
+
+    public RvAdapter( Context context) {
         this.context = context;
+        this.data = new ArrayList<>();
+        prevSize=0;
     }
 
     @Override
-    public RvAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public void notifyRange(int cnt) {
+        notifyItemRangeChanged(prevSize,cnt);
+    }
 
+    @Override
+    public void addItems(ArrayList<String> addData) {
+        prevSize = data.size();
+        this.data.addAll(addData);
+    }
+
+    @Override
+    public void clearItem() {
+        if(data!=null) data.clear();
+        notifyDataSetChanged();
+    }
+
+
+    @Override
+    public RvAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         return new RvAdapter.ViewHolder(inflater.inflate(R.layout.item_img, parent, false));
     }
 
     @Override
-    public int getItemCount() { // 아이템의 개수 반환
-        return data.size() ;
+    public int getItemCount() {
+        return data !=null ? data.size() : 0 ;
     }
 
     @Override
     public void onBindViewHolder(RvAdapter.ViewHolder holder, int position) {
-        //Glide를 쓰냐 아니면 직접 만드냐?
-        // glide를 썻을때 캐시를 구현할까?
+
+        //glide로 이미지 불러오기
         Glide.with(context)
                 .load(data.get(position))
                 .override(512)
-                .skipMemoryCache(false)//memory cache 사용
-                .diskCacheStrategy(DiskCacheStrategy.ALL)//disk cache 사용하지 않음;
+                .skipMemoryCache(false)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(R.drawable.no_img)
                 .into(holder.item_view);
 
     }
 
-    // ViewHolder 클래스 정의를 통해 Adapter에서 사용할 뷰들을 연결
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView item_view;
 
